@@ -29,7 +29,7 @@
 #include <linux/ktime.h>
 #endif
 
-#ifdef NVT_SENSOR_EN
+#if defined(NVT_SENSOR_EN) && !defined(CONFIG_BOARD_USES_DOUBLE_TAP_CTRL)
 #include <linux/sensors.h>
 #endif
 
@@ -162,13 +162,7 @@ extern const uint16_t gesture_key_array[];
 extern struct delayed_work nvt_esd_check_work;
 #endif
 
-#ifdef NVT_SENSOR_EN
-/* display state */
-enum display_state {
-	SCREEN_UNKNOWN,
-	SCREEN_OFF,
-	SCREEN_ON,
-};
+#if defined(NVT_SENSOR_EN) && !defined(CONFIG_BOARD_USES_DOUBLE_TAP_CTRL)
 struct nvt_sensor_platform_data {
 	struct input_dev *input_sensor_dev;
 	struct sensors_classdev ps_cdev;
@@ -224,7 +218,6 @@ struct nvt_ts_data {
 	bool gesture_wait_pm;
 	const char *panel_supplier;
 #ifdef CONFIG_BOARD_USES_DOUBLE_TAP_CTRL
-        int supported_gesture_type;
         bool d_tap_flag;
         bool s_tap_flag;
 #endif
@@ -251,9 +244,9 @@ struct nvt_ts_data {
 #endif
 #ifdef NVT_SENSOR_EN
 	bool should_enable_gesture;
-	enum display_state screen_state;
-	struct mutex state_mutex;
+#ifndef CONFIG_BOARD_USES_DOUBLE_TAP_CTRL
 	struct nvt_sensor_platform_data *sensor_pdata;
+#endif
 #endif
 #ifdef PALM_GESTURE
 	bool palm_enabled;

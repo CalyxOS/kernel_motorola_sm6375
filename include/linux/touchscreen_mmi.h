@@ -296,8 +296,18 @@ struct ts_mmi_class_methods {
 enum ts_mmi_pm_mode {
 	TS_MMI_PM_DEEPSLEEP = 0,
 	TS_MMI_PM_GESTURE,
-	TS_MMI_PM_ACTIVE
-	};
+	TS_MMI_PM_ACTIVE,
+	TS_MMI_PM_GESTURE_SINGLE,
+	TS_MMI_PM_GESTURE_DOUBLE,
+	TS_MMI_PM_GESTURE_ZERO,
+	TS_MMI_PM_GESTURE_SWITCH,
+};
+
+enum ts_mmi_gesture_bit {
+	TS_MMI_GESTURE_ZERO = BIT(0),
+	TS_MMI_GESTURE_SINGLE = BIT(1),
+	TS_MMI_GESTURE_DOUBLE = BIT(2),
+};
 
 enum ts_mmi_panel_event {
 	TS_MMI_EVENT_PRE_DISPLAY_OFF,
@@ -309,12 +319,16 @@ enum ts_mmi_panel_event {
 };
 
 enum ts_mmi_work {
+	TS_MMI_DO_POWER_ON,
 	TS_MMI_DO_RESUME,
+	TS_MMI_DO_SLEEP,
+	TS_MMI_DO_POWER_OFF,
 	TS_MMI_DO_PS,
 	TS_MMI_DO_REFRESH_RATE,
 	TS_MMI_DO_FPS,
 	TS_MMI_TASK_INIT,
 	TS_MMI_DO_LIQUID_DETECTION,
+	TS_MMI_SET_GESTURES,
 };
 
 #define TS_MMI_RESET_SOFT	0
@@ -453,6 +467,7 @@ struct ts_mmi_dev_pdata {
 #ifdef CONFIG_BOARD_USES_DOUBLE_TAP_CTRL
 	int supported_gesture_type;
 #endif
+	int resolution_boost;
 };
 
 /**
@@ -497,7 +512,6 @@ struct ts_mmi_dev {
 	atomic_t		touch_stopped;
 	enum ts_mmi_pm_mode	pm_mode;
 
-	atomic_t		resume_should_stop;
 	struct delayed_work	work;
 	struct kfifo		cmd_pipe;
 
@@ -506,6 +520,7 @@ struct ts_mmi_dev {
 
 	struct work_struct	ps_notify_work;
 	struct notifier_block	ps_notif;
+	bool			ps_is_present_set;
 	bool			ps_is_present;
 
 	struct notifier_block	fps_notif;
@@ -549,6 +564,12 @@ struct ts_mmi_dev {
 	struct attribute_group	*extern_group;
 	struct list_head	node;
 	struct touch_clip_area clip;
+
+	ktime_t			single_tap_pressed_time;
+	bool			single_tap_pressed;
+	bool			double_tap_pressed;
+	bool			udfps_pressed;
+
 	/*
 	 * vendor provided
 	 */
