@@ -270,9 +270,9 @@ enum hbm_state {
 };
 
 enum cabc_state {
+	CABC_DIS_STATE,
 	CABC_UI_STATE,
 	CABC_MV_STATE,
-	CABC_DIS_STATE,
 	CABC_STATE_NUM,
 };
 
@@ -561,10 +561,10 @@ void dsi_panel_destroy_cmd_packets(struct dsi_panel_cmd_set *set);
 
 void dsi_panel_dealloc_cmd_packets(struct dsi_panel_cmd_set *set);
 
+bool dsi_panel_param_is_supported(u32 param_idx);
+
 int dsi_panel_set_param(struct dsi_panel *panel,
 			struct msm_param_info *param_info);
-
-void dsi_panel_reset_param(struct dsi_panel *panel);
 
 int dsi_panel_get_elvss_data(struct dsi_panel *panel);
 int dsi_panel_get_elvss_data_1(struct dsi_panel *panel);

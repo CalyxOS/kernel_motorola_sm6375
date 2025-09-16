@@ -6742,6 +6742,10 @@ int dsi_display_dev_probe(struct platform_device *pdev)
 
 	panel_class_create(pdev);
 
+	if (index == DSI_PRIMARY) {
+		sde_sysfs_mot_kms_prop_util_init(display);
+	}
+
 	return 0;
 end:
 	if (display)
@@ -6780,6 +6784,10 @@ int dsi_display_dev_remove(struct platform_device *pdev)
 				continue;
 			ctrl->ctrl->dma_cmd_workq = NULL;
 		}
+	}
+
+	if (display->panel_idx == 0) {
+		sde_sysfs_mot_kms_prop_util_deinit(display);
 	}
 
 	(void)_dsi_display_dev_deinit(display);
@@ -8854,6 +8862,12 @@ static int dsi_display_set_roi(struct dsi_display *display,
 			return rc;
 		}
 
+		rc = dsi_panel_send_roi_dcs(display->panel, i, &ctrl_roi);
+		if (rc) {
+			DSI_ERR("dsi_panel_set_roi twice failed rc %d\n", rc);
+			return rc;
+		}
+
 		/* re-program the ctrl with the timing based on the new roi */
 		rc = dsi_ctrl_timing_setup(ctrl->ctrl);
 		if (rc) {
@@ -9195,7 +9209,6 @@ int dsi_display_enable(struct dsi_display *display)
 			       display->name, rc);
 			goto error;
 		}
-		dsi_panel_reset_param(display->panel);
 
 		if (display->panel->dfps_caps.dfps_send_cmd_support) {
 			display->panel->dfps_caps.current_fps = display->panel->dfps_caps.panel_on_fps;

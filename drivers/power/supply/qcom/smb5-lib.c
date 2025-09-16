@@ -915,7 +915,9 @@ static const char * const smblib_qg_ext_iio_chan[] = {
 	[SMB5_QG_CYCLE_COUNT] = "cycle_count",
 	[SMB5_QG_CHARGE_FULL_DESIGN] = "charge_full_design",
 	[SMB5_QG_TIME_TO_FULL_NOW] = "time_to_full_now",
+#ifndef CONFIG_DENVER_DTB
 	[SMB5_QG_SOH] = "soh",
+#endif
 };
 
 static int smblib_read_iio_prop(struct smb_charger *chg,
@@ -2022,7 +2024,13 @@ int smblib_vbus_regulator_enable(struct regulator_dev *rdev)
 		smblib_err(chg, "Couldn't enable OTG rc=%d\n", rc);
 		return rc;
 	}
-
+#ifdef CONFIG_MOT_SET_OTG_VOL_5V5
+        rc = smblib_masked_write(chg, 0x1186, GENMASK(2,0), 0x07);
+        if (rc < 0) {
+               smblib_err(chg, "Couldn't enable OTG boost rc=%d\n", rc);
+               return rc;
+        }
+#endif
 	return 0;
 }
 

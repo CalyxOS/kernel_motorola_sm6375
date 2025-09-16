@@ -899,7 +899,7 @@ error:
 	return rc;
 }
 
-static bool dsi_panel_param_is_supported(u32 param_idx)
+bool dsi_panel_param_is_supported(u32 param_idx)
 {
 
 	struct panel_param *param = NULL;
@@ -1415,18 +1415,6 @@ int dsi_panel_set_param(struct dsi_panel *panel,
 	}
 
 	return rc;
-}
-
-void dsi_panel_reset_param(struct dsi_panel *panel)
-{
-	struct panel_param *param;
-	int i;
-
-	for (i = 0; i < PARAM_ID_NUM; i++) {
-		/* Since only panel support for now */
-		param = &dsi_panel_param[0][i];
-		param->value = param->default_value;
-	}
 }
 
 static int dsi_panel_bl_register(struct dsi_panel *panel)
